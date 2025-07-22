@@ -1,59 +1,120 @@
+
 # RFM Customer Segmentation Analysis
 
-## Project Overview
+## Overview
 
-This project applies RFM (Recency, Frequency, Monetary) analysis to segment customers based on their purchasing behavior. Using SQL in BigQuery for data preparation and Power BI for visualization, I identified high-value, at-risk, and inactive customers. These insights support targeted marketing, personalized retention strategies, and overall business growth.
+This project applies RFM (Recency, Frequency, Monetary) analysis to segment customers based on purchasing behavior. Using SQL in BigQuery and Power BI for visualization, I identify high-value, at-risk, and disengaged customers to help drive personalized marketing strategies and improve retention.
+
+---
 
 ## Objectives
 
 - Calculate RFM metrics using transactional data  
-- Assign quantile-based scores to Recency, Frequency, and Monetary values  
-- Segment customers into behavioral categories based on RFM scores  
-- Visualize segment performance using Power BI  
-- Deliver actionable insights to improve engagement and retention
+- Assign quantile-based scores to Recency, Frequency, and Monetary metrics  
+- Segment customers into meaningful behavioral groups  
+- Visualize key patterns using Power BI  
+- Deliver actionable insights for business growth and retention  
+
+---
 
 ## What is RFM Analysis?
 
-RFM Analysis is a widely used customer segmentation technique that evaluates:
+RFM analysis is a classic customer segmentation technique used in marketing and customer analytics:
 
-- **Recency** – How recently a customer made a purchase  
-- **Frequency** – How often a customer makes purchases  
-- **Monetary** – How much money a customer has spent  
+- **Recency** – Days since the last purchase  
+- **Frequency** – Number of purchases made  
+- **Monetary** – Total amount spent  
 
-Each metric is scored individually on a 1–4 scale, and the combined RFM score (ranging from 3 to 12) is used to classify customers into segments.
+Customers are scored on a scale (1 to 4 in this case), and their combined score determines their segment.
 
-## Example Customer Segments
+### Example Segments
 
-- **Loyal Champions** – Recent, frequent, and high-spending customers  
-- **Potentially Loyal** – Strong spending/frequency, but less recent activity  
-- **Needing Attention** – Moderate engagement, may be drifting  
-- **Can’t Lose** – Previously high-value but currently inactive  
-- **Lost** – Infrequent, low-value, and inactive customers
+- Loyal Champions – Recent, frequent, and high spenders  
+- Potentially Loyal – Moderate to high spenders, but not as recent  
+- Needing Attention – Moderate value but declining engagement  
+- Can’t Lose – Previously valuable but now inactive  
+- Lost – Low value and inactive  
+
+---
 
 ## Tools Used
 
-- **SQL (BigQuery)** – for cleaning, transforming, and scoring data  
-- **Power BI** – for visual exploration of customer segments and behavior patterns
+- SQL (BigQuery) – Data cleaning, aggregation, and scoring  
+- Power BI – Dashboard for segment visualization and business insights  
 
 ---
 
 ## SQL Breakdown
 
-### Step 1: Filter and Aggregate Transactions
+### Key Steps
 
-Filtered valid transactions from December 2010 to December 2011, removing null or negative values.
+1. **Filter & Aggregate Transactions**  
+   Filtered data to include valid transactions between Dec 2010 and Dec 2011.
 
-### Step 2: Calculate RFM Metrics
+2. **Calculate RFM Metrics**  
+   - Recency: Days since the last transaction  
+   - Frequency: Count of purchase dates  
+   - Monetary: Total revenue per customer  
 
-- **Recency**: Days between the last purchase date and a fixed reference date  
-- **Frequency**: Count of unique purchase dates per customer  
-- **Monetary**: Total purchase value per customer
+3. **Assign Quantile Scores**  
+   Used `APPROX_QUANTILES()` to assign scores (1–4) for each RFM metric.
 
-### Step 3: Assign Quantile-Based Scores
+4. **Create Segments**  
+   Generated a combined RFM score and categorized customers using a CASE statement:
 
-Used `APPROX_QUANTILES()` in BigQuery to assign scores from 1 to 4 for each metric based on distribution:
+   ```sql
+   CASE
+     WHEN RFMScore BETWEEN 3 AND 4 THEN 'Lost'
+     WHEN RFMScore BETWEEN 5 AND 6 THEN 'Can’t Lose'
+     WHEN RFMScore BETWEEN 7 AND 9 THEN 'Needing Attention'
+     WHEN RFMScore BETWEEN 10 AND 11 THEN 'Potentially Loyal'
+     WHEN RFMScore = 12 THEN 'Loyal Champions'
+   END AS RFMGroup
 
-```sql
-APPROX_QUANTILES(Recency, 4)
-APPROX_QUANTILES(Frequency, 4)
-APPROX_QUANTILES(Monetary, 4)
+  ## Key Findings
+
+- **Loyal Champions (10.1%)** generated the highest revenue with consistent activity and an average purchase value of 15.1  
+- **Potentially Loyal** customers made fewer purchases but contributed significantly to revenue (28%)  
+- **Needing Attention** accounted for 27.6% of customers and showed declining engagement  
+- **Can’t Lose** customers had a history of strong purchases but were largely inactive  
+- **Lost** customers made infrequent purchases and were disengaged, representing low revenue potential  
+- The **average recency** across all users was 92 days, highlighting long gaps in engagement  
+- **Total sales reached 8.4 million**, with 47.9% coming from Loyal Champions alone  
+
+---
+
+## How a Business Can Use These Insights
+
+- **Targeted Marketing**  
+  Focus high-converting promotions on Loyal Champions and re-engagement campaigns on Potentially Loyal and Can’t Lose groups.  
+
+- **Customer Retention Strategies**  
+  Implement loyalty programs or special incentives for those at risk of churn.  
+
+- **Revenue Forecasting**  
+  Use RFM segmentation to forecast future revenue streams and customer value by group.  
+
+- **Customer Journey Mapping**  
+  Understand transition trends (e.g., from Potentially Loyal to Lost) to intervene before customers disengage.  
+
+- **Prioritize Support & Service**  
+  Provide tailored support to high-value groups to reinforce positive experiences and long-term loyalty.  
+
+---
+
+## PDF Report
+
+The accompanying Power BI dashboard includes:
+
+- Total customers by segment  
+- Revenue contribution by segment  
+- Average frequency and recency by group  
+- Days between purchases per segment  
+- Average purchase value  
+
+---
+
+## Contact
+
+- **LinkedIn:** [https://www.linkedin.com/in/khristian-novoa-4529a9353](https://www.linkedin.com/in/khristian-novoa-4529a9353)  
+- **Email:** khristiannovoa@gmail.com
