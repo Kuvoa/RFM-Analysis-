@@ -1,69 +1,59 @@
-# 🧮 RFM Customer Segmentation Analysis
+# RFM Customer Segmentation Analysis
 
-## 📘 Overview
+## Project Overview
 
-This project applies **RFM (Recency, Frequency, Monetary)** analysis to segment customers based on purchasing behavior. Using SQL in BigQuery and Power BI for visualization, I identify high-value, at-risk, and disengaged customers to help drive personalized marketing strategies and improve retention.
+This project applies RFM (Recency, Frequency, Monetary) analysis to segment customers based on their purchasing behavior. Using SQL in BigQuery for data preparation and Power BI for visualization, I identified high-value, at-risk, and inactive customers. These insights support targeted marketing, personalized retention strategies, and overall business growth.
+
+## Objectives
+
+- Calculate RFM metrics using transactional data  
+- Assign quantile-based scores to Recency, Frequency, and Monetary values  
+- Segment customers into behavioral categories based on RFM scores  
+- Visualize segment performance using Power BI  
+- Deliver actionable insights to improve engagement and retention
+
+## What is RFM Analysis?
+
+RFM Analysis is a widely used customer segmentation technique that evaluates:
+
+- **Recency** – How recently a customer made a purchase  
+- **Frequency** – How often a customer makes purchases  
+- **Monetary** – How much money a customer has spent  
+
+Each metric is scored individually on a 1–4 scale, and the combined RFM score (ranging from 3 to 12) is used to classify customers into segments.
+
+## Example Customer Segments
+
+- **Loyal Champions** – Recent, frequent, and high-spending customers  
+- **Potentially Loyal** – Strong spending/frequency, but less recent activity  
+- **Needing Attention** – Moderate engagement, may be drifting  
+- **Can’t Lose** – Previously high-value but currently inactive  
+- **Lost** – Infrequent, low-value, and inactive customers
+
+## Tools Used
+
+- **SQL (BigQuery)** – for cleaning, transforming, and scoring data  
+- **Power BI** – for visual exploration of customer segments and behavior patterns
 
 ---
 
-## 🎯 Objectives
+## SQL Breakdown
 
-- Calculate RFM metrics using transactional data
-- Assign quantile-based scores to Recency, Frequency, and Monetary metrics
-- Segment customers into meaningful behavioral groups
-- Visualize key patterns using Power BI
-- Deliver actionable insights for business growth and retention
+### Step 1: Filter and Aggregate Transactions
 
----
+Filtered valid transactions from December 2010 to December 2011, removing null or negative values.
 
-## 📊 What is RFM Analysis?
+### Step 2: Calculate RFM Metrics
 
-**RFM Analysis** is a classic customer segmentation technique used in marketing and customer analytics:
+- **Recency**: Days between the last purchase date and a fixed reference date  
+- **Frequency**: Count of unique purchase dates per customer  
+- **Monetary**: Total purchase value per customer
 
-- **Recency**: Days since the last purchase
-- **Frequency**: Number of purchases made in the period
-- **Monetary**: Total amount spent
+### Step 3: Assign Quantile-Based Scores
 
-Each customer is scored on a scale (1 to 4 in this case), and the combined score determines their segment.
+Used `APPROX_QUANTILES()` in BigQuery to assign scores from 1 to 4 for each metric based on distribution:
 
-### Example Segments
-- 🏆 **Loyal Champions** – recent, frequent, high spenders  
-- 💎 **Potentially Loyal** – good frequency/spend, but less recent  
-- ⚠️ **Needing Attention** – moderate value but may be drifting  
-- ❗ **Can't Lose** – previously valuable but inactive  
-- ❌ **Lost** – infrequent, low spend, and inactive
-
----
-
-## 🛠️ Tools Used
-
-- **SQL (BigQuery)** – Data cleaning, aggregation, and scoring
-- **Power BI** – Dashboard for visual insights
----
-
-## 🧾 SQL Breakdown
-
-### Key Steps
-
-1. **Filter & Aggregate Transactions**  
-   Cleaned data by filtering for valid transactions from Dec 2010 to Dec 2011.
-
-2. **Calculate RFM Metrics**  
-   - Recency: Days since last transaction  
-   - Frequency: Count of purchase dates  
-   - Monetary: Total purchase value  
-
-3. **Assign Scores with Quantiles**  
-   Used `APPROX_QUANTILES()` to assign scores for each metric (1–4).
-
-4. **Segment Customers**
-   Combined the scores to get an RFM score (3 to 12) and assigned groups using a `CASE` statement:
-   
-   ```sql
-   CASE
-     WHEN RFMScore BETWEEN 3 AND 4 THEN 'Lost'
-     WHEN RFMScore BETWEEN 5 AND 6 THEN 'Can’t Lose'
-     WHEN RFMScore BETWEEN 7 AND 9 THEN 'Needing Attention'
-     WHEN RFMScore BETWEEN 10 AND 11 THEN 'Potentially Loyal'
-     WHEN RFMScore = 12 THEN 'Loyal Champions'
-   END AS RFMGroup
+```sql
+APPROX_QUANTILES(Recency, 4)
+APPROX_QUANTILES(Frequency, 4)
+APPROX_QUANTILES(Monetary, 4)
